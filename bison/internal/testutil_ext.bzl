@@ -17,15 +17,9 @@
 """Helpers for testing rules_bison in a bzlmod-enabled workspace."""
 
 load("//bison/internal:versions.bzl", "VERSION_URLS")
-load("//bison/rules:bison_repository.bzl", "bison_repository")
 load(":testutil.bzl", "rules_bison_testutil")
 
 def _rules_bison_testutil_ext(_module_ctx):
     rules_bison_testutil(name = "rules_bison_testutil")
-    for version in VERSION_URLS:
-        bison_repository(
-            name = "bison_v{}".format(version),
-            version = version,
-        )
 
 rules_bison_testutil_ext = module_extension(_rules_bison_testutil_ext)

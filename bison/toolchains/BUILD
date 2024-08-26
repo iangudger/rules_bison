@@ -1,8 +1,13 @@
 load("//bison:toolchain_type.bzl", "BISON_TOOLCHAIN_TYPE")
-load("//bison/internal:versions.bzl", "VERSION_URLS")
+load("//bison/internal:toolchain_info.bzl", "bison_toolchain_info")
 
-[toolchain(
-    name = "v{}".format(version),
-    toolchain = "@bison_v{}//rules_bison_internal:toolchain_info".format(version),
+toolchain(
+    name = "bison",
+    toolchain = ":toolchain_info",
     toolchain_type = BISON_TOOLCHAIN_TYPE,
-) for version in VERSION_URLS]
+)
+
+bison_toolchain_info(
+    name = "toolchain_info",
+    visibility = ["//visibility:public"],
+)

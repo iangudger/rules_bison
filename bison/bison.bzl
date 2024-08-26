@@ -26,11 +26,6 @@ load(
     _bison_toolchain = "bison_toolchain",
 )
 load(
-    "//bison/internal:versions.bzl",
-    "DEFAULT_VERSION",
-    "check_version",
-)
-load(
     "//bison/rules:bison.bzl",
     _bison = "bison",
 )
@@ -42,41 +37,18 @@ load(
     "//bison/rules:bison_java_library.bzl",
     _bison_java_library = "bison_java_library",
 )
-load(
-    "//bison/rules:bison_repository.bzl",
-    _bison_repository = "bison_repository",
-)
-load(
-    "//bison/rules:bison_toolchain_repository.bzl",
-    _bison_toolchain_repository = "bison_toolchain_repository",
-)
 
 BISON_TOOLCHAIN_TYPE = _BISON_TOOLCHAIN_TYPE
 bison = _bison
 bison_cc_library = _bison_cc_library
 bison_java_library = _bison_java_library
 bison_toolchain = _bison_toolchain
-bison_repository = _bison_repository
-bison_toolchain_repository = _bison_toolchain_repository
 BisonToolchainInfo = _BisonToolchainInfo
 
 # buildifier: disable=unnamed-macro
-def bison_register_toolchains(version = DEFAULT_VERSION, extra_copts = []):
-    """A helper function for Bison toolchains registration.
-
-    This workspace macro will create a [`bison_repository`](#bison_repository)
-    named `bison_v{version}` and register it as a Bazel toolchain.
-
-    Args:
-        version: A supported version of Bison.
-        extra_copts: Additional C compiler options to use when building Bison.
+def bison_register_toolchain():
     """
-    check_version(version)
-    repo_name = "bison_v{}".format(version)
-    if repo_name not in native.existing_rules().keys():
-        bison_repository(
-            name = repo_name,
-            version = version,
-            extra_copts = extra_copts,
-        )
-    native.register_toolchains("@rules_bison//bison/toolchains:v{}".format(version))
+    A helper function for Bison toolchain registration.
+    """
+
+    native.register_toolchains("@rules_bison//bison/toolchains:bison")

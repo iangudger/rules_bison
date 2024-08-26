@@ -2,7 +2,6 @@ filegroup(
     name = "bzl_srcs",
     srcs = glob([
         "*.bzl",
-        "gnulib/*.bzl",
     ]),
     visibility = ["//:__subpackages__"],
 )

@@ -1,0 +1,68 @@
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "configure_make")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "all_srcs",
+    srcs = glob(
+        include = ["**"],
+        exclude = ["*.bazel"],
+    ),
+)
+
+configure_make(
+    name = "bison",
+    build_data = [
+        "@m4",
+    ],
+    env = select({
+        "@platforms//os:linux": {
+            "M4": "$$EXT_BUILD_DEPS$$/bin/m4/bin/m4",
+        },
+        "@platforms//os:macos": {
+            "AR": "",
+            "M4": "$$EXT_BUILD_DEPS$$/bin/m4/bin/m4",
+        },
+        "//conditions:default": {},
+    }),
+    lib_source = ":all_srcs",
+    out_binaries = [
+        "bison",
+        "yacc",
+    ],
+    # Bison depends on m4sugar.m4 in the "share" directory at runtime
+    out_data_dirs = ["share"],
+    out_static_libs = ["liby.a"],
+)
+
+filegroup(
+    name = "gen_dir",
+    srcs = [":bison"],
+    output_group = "gen_dir",
+    visibility = ["//visibility:public"],
+)
+
+sh_binary(
+    name = "bison_bin",
+    srcs = ["bison_helper.sh"],
+    data = [":bison", "@m4"],
+    visibility = ["//visibility:public"],
+)
+
+genrule(
+    name = "bison_helper",
+    outs = ["bison_helper.sh"],
+    cmd = """
+    echo '#!/bin/bash' > $@
+    echo -n 'export M4=' >> $@
+    echo $(locations @m4//:m4) | tr ' ' '\n' | grep 'bin/m4$$' >> $@
+    echo -n 'export BISON_PKGDATADIR=' >> $@
+    echo $(locations @bison//:bison) | tr ' ' '\n' | grep '/share$$' | xargs echo -n >> $@
+    echo '/bison' >> $@
+    echo -n 'exec ' >> $@
+    echo $(locations @bison//:bison) | tr ' ' '\n' | grep 'bin/bison$$' | xargs echo -n >> $@
+    echo ' "$$@"' >> $@
+    chmod +x $@
+    """,
+    tools = [":bison", "@m4"],
+)
